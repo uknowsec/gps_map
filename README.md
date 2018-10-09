@@ -27,5 +27,5 @@ map/
 - js文件夹中的`correnction.js`文件是用来把GPS经纬度坐标转化为百度地图坐标的关键函数文件。
 - `server.php`文件时服务端文件，通过php命令行的形式启动`php server.php`监听UDP端口接收GPS模块发来的GPS数据。
 - `map`文件为GPS数据在百度地图显示的WEB目录文件。
-
+- `map.sql`为数据库文件。
 

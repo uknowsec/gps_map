@@ -1,7 +1,7 @@
 
 # 项目说明
 
-服务端`server.php`接收GPS模块数据进行处理存入数据，`setPoint.php`和`json.php`查询得到数据库GPS数据，`index.html`通过`ajax`请求`setPoint.php`和`json.php`中的GPS数据通过百度地图API进行显示以及表格形式输出。
+服务端`server.php`接收GPS模块数据进行处理存入数据库，`setPoint.php`和`json.php`查询得到数据库GPS数据，`index.html`通过`ajax`请求`setPoint.php`和`json.php`中的GPS数据通过百度地图API进行显示以及表格形式输出。
 
 
 # 文件说明

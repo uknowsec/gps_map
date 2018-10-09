@@ -1,7 +1,7 @@
 
 
 #文件结构
-
+```
 map/
 ├── map
 │   ├── css
@@ -17,3 +17,4 @@ map/
 │   └── setPoint.php
 ├── map.sql
 └── server.php
+```

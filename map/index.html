@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+	<style type="text/css">
+		body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+		#l-map{height:100%;width:78%;float:left;border-right:2px solid #bcbcbc;}
+		#r-result{height:100%;width:20%;float:left;}
+	</style>
+	<script type="text/javascript" src="js/jquery-1.6.2.js"></script>  
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.5&ak=9fb983ecd9b505f8fedcc9ab07c65e3e"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="css/weui.css"/>
+	<link rel="stylesheet" href="css/weui2.css"/>
+	<link rel="stylesheet" href="css/weui3.css"/>
+	<link rel="stylesheet" href="css/icon.css"/>
+	<link rel="stylesheet" href="//cdn.bootcss.com/weui/0.4.0/style/weui.min.css"/>
+	<link rel="stylesheet" href="css/example.css">
+	<script type="text/javascript" src="js/correction.js"></script>
+    <script src="js/zepto.min.js"></script>
+</head>
+<body>
+	<div id="header">
+	<h2 class="f-gray" style="width:74%;float:left;margin-left:5px;">百度地图实时标记</h2>
+	<h2 class="f-gray" style="width:24%;float:right;margin-right:5px;">GPS数据实时输出</h2></div>
+	</div>
+	<div id="allmap" class="weui-border-radius" style="width:74%;float:left;margin-left:5px;"></div>
+	<div id="right" class="weui-border-radius" style="width:24%;float:right;margin-right:5px;">
+	</div>
+
+</body>
+</html>
+<script type="text/javascript">
+	//将字符串转为JSon
+	function str2JSON(str) {  
+    str=$.trim(str);  
+    if(str!=""){  
+        return eval('(' + str + ')');  
+    }else{  
+        return Object();  
+    }  
+}  
+  
+	//通过jquery的Ajax获取Mysql中的经纬度
+	function get_trj(fn){  
+    var url="setPoint.php"  
+    $.get(url,{  
+        method:'get_trj'  
+    },function(result){//result为php返回的JSON字符串  
+        result=str2JSON(result);  
+        //alert(result);  
+        fn(result); //这是回调函数，调用下面的 trj_callback 变量中方法，不懂得话，百度JQuery Ajax 
+    });
+	map.clearOverlays();
+	}  
+	// 百度地图API功能
+	var map = new BMap.Map("allmap");
+	var point = new BMap.Point(118.888, 31.928);//坐标中心是天印湖
+	map.centerAndZoom(point, 17);
+	map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+	var navigationControl = new BMap.NavigationControl();//创建平移缩放控件
+	// 编写自定义函数,创建标注
+	function addMarker(point,id,time,lat,lon){
+	  var marker = new BMap.Marker(point);
+	  map.addOverlay(marker);
+	  var text = 'id: '+id +'<br>'+'time: '+time +'<br>'+ 'lon/lat：'+lon+','+lat;
+	  var opts = {
+			  width : 60,     // 信息窗口宽度
+			  height: 80,     // 信息窗口高度
+			}
+			var infoWindow = new BMap.InfoWindow(text, opts);  // 创建信息窗口对象 
+			marker.addEventListener("click", function(){          
+			map.openInfoWindow(infoWindow,point); //开启信息窗口
+	});
+	}
+	
+	 var trj_callback=function(pts_array){  
+        //将获取的array转换为BMap.Point  
+ 
+        var sContentArray=Array();  
+        var infoWindowArray=Array();  
+
+        for(var i=0;i<pts_array.length;i++){  
+			//这是在地图上打点，往里面传个经纬度即可，自己完善下循环就可以了
+		   _point = wgs2bd(parseFloat(pts_array[i][2]),parseFloat(pts_array[i][1]));
+           addMarker(new BMap.Point(_point[1],_point[0]),pts_array[i][0],pts_array[i][3],pts_array[i][1],pts_array[i][2]);
+		}
+	}   
+	
+	function echo(){
+        $.getJSON("json.php", function (result, status) {
+                var tmp = "<table class='weui-table weui-border-tb weui-table-2n'><thead><tr><th>id</th><th>time</th><th>lat</th><th>lon</th></tr></thead><tbody>";
+                for (var i = 0; i < result.length; i++) {
+                    tmp += "<tr><td>" + result[i].id + "</td>" +
+                        "<td>"+ result[i].time1 + "</td>" +
+                        "<td>" + result[i].lon + "</td>" +
+                        "<td>" + result[i].lat + "</td></tr>"
+                }
+                tmp += "</tbody></table>";
+                document.getElementById("right").innerHTML = tmp;
+        });
+	}
+
+	//这是程序的入口，调用，
+	setInterval(function(){get_trj(trj_callback);}, 5000);
+	setInterval(function(){echo();}, 5000);
+</script>
